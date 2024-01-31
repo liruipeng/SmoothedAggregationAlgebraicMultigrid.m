@@ -1,5 +1,4 @@
 #include "mex.h"
-// #include <omp.h>
 #include <stdio.h>
 
 
@@ -7,9 +6,8 @@
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims GetDiagPreconditioner.c
+    /* mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims GetDiagPreconditioner.c */
     mwIndex k,global_idx;
-// // 
     mwIndex *C_S = mxGetIr(prhs[0]);
     mwIndex *starts_S = mxGetJc(prhs[0]);
     double  *V_S = mxGetPr(prhs[0]);
@@ -22,7 +20,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     
     
-    if (op=='1'){ // L1
+    if (op=='1'){ /* L1 */
         for (k = 0 ; k < n ; k++){
             x_out[k] = 0;
             for (global_idx = starts_S[k] ; global_idx<starts_S[k+1] ; global_idx++ ){
@@ -32,7 +30,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 x_out[k] = 1/x_out[k];
             }
         }
-    }else if (op=='S'){ //SPAI
+    }else if (op=='S'){ /*SPAI*/
         for (k = 0 ; k < n ; k++){
             x_out[k] = 0;
             diag = 0;

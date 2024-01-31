@@ -6,9 +6,8 @@
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims NeighborhoodAgg.c
+    /*mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims NeighborhoodAgg.c*/
     mwIndex k,global_idx;
-// // 
     mwIndex *C_S = mxGetIr(prhs[0]);
     mwIndex *starts_S = mxGetJc(prhs[0]);
     double  *V_S = mxGetPr(prhs[0]);
@@ -48,11 +47,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
         }
         if (Neighbors_Aggregated_flag==0){
-            numAggs++; // starts from 1...
+            numAggs++; /* starts from 1... */
             for (global_idx = starts_S[k] ; global_idx<starts_S[k+1] ; global_idx++ ){
                 neighbor = C_S[global_idx];
                 used[neighbor] = 1;
-                rowQ[numAggregated] = neighbor+1; // conversion to MATLAB indices
+                rowQ[numAggregated] = neighbor+1; /* conversion to MATLAB indices */
                 colQ[numAggregated] = numAggs;
                 numAggregated++;
             }

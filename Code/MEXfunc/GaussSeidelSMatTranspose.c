@@ -2,7 +2,7 @@
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //mex -largeArrayDims GaussSeidelSMatTranspose.c
+    /* mex -largeArrayDims GaussSeidelSMatTranspose.c */
     int i,j,k;
     double temp;
     mwIndex *C_t = mxGetIr(prhs[0]);

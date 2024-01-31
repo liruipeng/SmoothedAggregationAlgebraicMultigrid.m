@@ -1,5 +1,4 @@
 #include "mex.h"
-// #include <omp.h>
 #include <stdio.h>
 
 
@@ -7,9 +6,8 @@
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims DiagOperate.c
+    /* mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims DiagOperate.c */
     mwIndex k,global_idx;
-// // 
     mwIndex *C_S = mxGetIr(prhs[0]);
     mwIndex *starts_S = mxGetJc(prhs[0]);
     double  *V_S = mxGetPr(prhs[0]);
@@ -24,7 +22,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     
     
-    if (op=='A'){ //ADD
+    if (op=='A'){ /*ADD */
         if (m!=n){
             printf("DiagOperate: Matrix and vector not in the same size - doing nothing!!!%d,%d",n,m);
             return;
@@ -37,7 +35,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 }
             }
         }
-    }else if (op=='E'){ //Exchage
+    }else if (op=='E'){ /*Exchage*/
         if (m!=n){
             printf("DiagOperate: Matrix and vector not in the same size - doing nothing!!!%d,%d",n,m);
             return;
@@ -50,7 +48,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 }
             }
         }
-    }else if (op=='R'){ // multiply from right
+    }else if (op=='R'){ /* multiply from right */
         if (m!=mxGetM(prhs[0])){
             printf("DiagOperate(R): Matrix and vector not in the same size - doing nothing!!!%d,%d",mxGetM(prhs[0]),m);
             return;
@@ -61,7 +59,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
         }
     
-    }else if (op=='L'){ // multiply from left
+    }else if (op=='L'){ /* multiply from left */
         if (m!=n){
             printf("DiagOperate(L): Matrix and vector not in the same size - doing nothing!!!%d,%d",n,m);
             return;

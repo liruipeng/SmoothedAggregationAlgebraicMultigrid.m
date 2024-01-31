@@ -1,4 +1,5 @@
 #include "mex.h"
+#define max(a,b) (((a)<(b)) ? (b) : (a))
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
@@ -11,8 +12,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double *IA,*IB,*AB;
     double tmpA,tmpB;
     char op = *((char*)mxGetData(prhs[2]));
-    // we assume that arrays A and B are sorted from small to large
-    if (op=='u'){ // union
+    /* we assume that arrays A and B are sorted from small to large */
+    if (op=='u'){ /* union */
         plhs[1] = mxCreateDoubleMatrix(1,nA, mxREAL);
         plhs[2] = mxCreateDoubleMatrix(1,nB, mxREAL);
         IA = mxGetPr(plhs[1]);
@@ -28,13 +29,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
             ++k;
         }
         while (ia<nA){
-            //AB(k-1) = A(ia);
+            /* AB(k-1) = A(ia); */
             IA[ia] = k;
             ++ia;
             ++k;
         }
         while (ib<nB){
-            //AB(k-1) = B(ib);
+            /* AB(k-1) = B(ib); */
             IB[ib] = k;
             ++ib;
             ++k;
@@ -48,7 +49,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             AB[(int)IB[ib]-1] = B[ib];
         }
     }
-    if (op=='i'){ // intersect
+    if (op=='i'){ /*  intersect */
         plhs[3] = mxCreateDoubleMatrix(1,1, mxREAL);
         k = 0;
         if (A[0] > B[nB-1] || A[nA-1] < B[0]){
@@ -65,7 +66,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             ia += tmpA <= tmpB;
             ib += tmpA >= tmpB;
         }
-//         k = min(nB,nA);
+/*         k = min(nB,nA); */
         plhs[0] = mxCreateDoubleMatrix(1,k, mxREAL);
         plhs[1] = mxCreateDoubleMatrix(1,k, mxREAL);
         plhs[2] = mxCreateDoubleMatrix(1,k, mxREAL);
