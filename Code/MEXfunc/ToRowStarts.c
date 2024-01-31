@@ -23,7 +23,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int* Out = 0;
     int n = (int)*mxGetPr(prhs[1]);
     int nnz = (int)*mxGetPr(prhs[2]);
-    const int dims[] = {1,n}; 
+    const mwSize dims[] = {1, (mwSize) n}; 
     /*Allocate memory and assign output pointer*/
     plhs[0] = mxCreateNumericArray(2,dims,mxINT32_CLASS,mxREAL);
     /*Get a pointer to the data space in our newly allocated memory*/

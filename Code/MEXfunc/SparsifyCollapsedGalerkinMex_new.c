@@ -98,7 +98,7 @@ mwIndex MultyplyRowTimesMat(mwIndex *vec_ind , double *vec_vals, mwIndex nnz_vec
         mwIndex *C_mat  , mwIndex *starts_mat , double *V_mat,
         mwIndex *ans_ind , double *ans_vals, Heap* heap, member* members);
 
-int SparsifyAki(mwIndex k, mwIndex i, double Aki, 
+void SparsifyAki(mwIndex k, mwIndex i, double Aki, 
         mwIndex* R_A0     , mwIndex *starts_A0     , double  *V_A0,
         mwIndex *R_RP0    , mwIndex *starts_RP0    , double *V_RP0,
         mwIndex *C_R0P    , mwIndex *starts_R0P    , double *V_R0P,
@@ -117,7 +117,7 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
         mwIndex *C_A0_cols, mwIndex *starts_A0_cols,double *V_A0_cols,
         mwIndex* globalDiagonal, int MAX_HEAP_SIZE_nc,int MAX_HEAP_SIZE_n){
     
-    mwIndex k,global_idx,nnz_in_row,i, *aux_ind , global_idx0,tmp0, tmpOmega , sparsify_indcator,ans;
+    mwIndex k,global_idx,nnz_in_row,i, *aux_ind , global_idx0,tmp0, tmpOmega , sparsify_indcator;
     mwIndex *intI1I2, *auxI1, *auxI2, *auxm1, *auxm2;
     double *thetta;
     double Aki;
@@ -181,7 +181,7 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
                     global_idx0++;
 /*                     printf("exit 2\n");*/
                 }else{
-					ans = SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
+					SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
                         R_RP0, starts_RP0, V_RP0, C_R0P, starts_R0P, V_R0P,
                         C_A0_cols, starts_A0_cols, V_A0_cols,
                         intI1I2, auxI1, auxI2, auxm1, auxm2, thetta, globalDiagonal,MAX_HEAP_SIZE_nc);
@@ -191,7 +191,7 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
             }
         }
         while (i<nnz_in_row){
-			ans = SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
+			SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
                     R_RP0, starts_RP0, V_RP0, C_R0P, starts_R0P, V_R0P,
                     C_A0_cols, starts_A0_cols, V_A0_cols,
                     intI1I2, auxI1, auxI2, auxm1, auxm2, thetta, globalDiagonal,MAX_HEAP_SIZE_nc); 
@@ -214,7 +214,7 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
     free(thetta);  
 }
 
-int SparsifyAki(mwIndex k, mwIndex i, double Aki, 
+void SparsifyAki(mwIndex k, mwIndex i, double Aki, 
         mwIndex* R_A0     , mwIndex *starts_A0     , double  *V_A0,
         mwIndex *R_RP0    , mwIndex *starts_RP0    , double *V_RP0,
         mwIndex *C_R0P    , mwIndex *starts_R0P    , double *V_R0P,

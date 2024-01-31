@@ -1,6 +1,6 @@
 function demo()
-addpath('Code');
-addpath('Code/MEXfunc');
+addpath('./Code');
+addpath('./Code/MEXfunc');
 
 % FORMING 2D Laplacian operator:
 A = delsq(numgrid('S',513));
@@ -15,5 +15,5 @@ disp('Relative norm of the residual:')
 norm(AT'*x1-b1)/norm(b1)
 
 rmpath('Code');
-rmpath('Code\MEXfunc');
+rmpath('Code/MEXfunc');
 return;

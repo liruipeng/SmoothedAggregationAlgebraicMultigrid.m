@@ -67,9 +67,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     zeroLowerThanThetaMaxInRow(S, mins, thetta);
     SquareMatrix* St = trimAndTranspose(S);
     int symNNZ = nnzInSymmetrization(S, St);
-    delete mins;
-    const int dims[] = {1,n};
-    const int dimsNNZ[] = {1,symNNZ};
+    delete[] mins;
+    const mwSize dims[] = {1, (mwSize)n};
+    const mwSize dimsNNZ[] = {1, (mwSize) symNNZ};
     plhs[0] = mxCreateNumericArray(2,dims,mxINT32_CLASS,mxREAL);
     plhs[1] = mxCreateNumericArray(2,dimsNNZ,mxINT32_CLASS,mxREAL);
     plhs[2] = mxCreateDoubleMatrix(1, symNNZ, mxREAL);
@@ -173,7 +173,7 @@ SquareMatrix* trimAndTranspose(SquareMatrix* S){
          }     
      }
      SquareMatrix* transposed = new SquareMatrix(N, newNNZ, targetStarts, targetCols, targetValues);
-     delete aux;
+     delete[] aux;
      return transposed;
      //print(transposed->values, transposed->nnz());
      //cout<<"\n";

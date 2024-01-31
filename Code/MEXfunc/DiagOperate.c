@@ -15,7 +15,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     double* vec = mxGetPr(prhs[1]);
     
-    char* op = *((char*)mxGetData(prhs[2]));
+    char op = *((char*)mxGetData(prhs[2]));
     mwIndex m = mxGetN(prhs[1]);
     if (m==1){
         m = mxGetM(prhs[1]);
