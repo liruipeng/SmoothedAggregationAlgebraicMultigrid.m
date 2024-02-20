@@ -25,38 +25,40 @@ if nargin < 4 || isempty(isSymmetric)
     end
 end
 
+isSymmetric = 0;
+
 if nargin < 9
     tracefile = [];
 end
 if nargin < 8
     alg=1;
-    params{alg}.levels = 10;
+    params{alg}.levels = 3;
     params{alg}.sol_method = 'MG';
     
     % Top level Acceleration: This can be 'NONE', 'PCG', 'GMRES',
     
     if isSymmetric==0
         params{alg}.TopAcceleration = 'GMRES';
-        params{alg}.P_smoothing_omega_val = (5/4)
+        params{alg}.P_smoothing_omega_val = (5/4);
     else
         params{alg}.TopAcceleration = 'PCG';
         params{alg}.P_smoothing_omega_val = 4/3;
     end
     
     % if NONE is selected in previous option, then "inner" should be 1.
-    params{alg}.inner = 20;
+    params{alg}.inner = 100;
     params{alg}.cycle_type = 'V';
     
     % Can be: N1, NN1, ON1, BUp4,
     params{alg}.coarsening_method = 'NN1';
     
-    params{alg}.setup_method = 'SA'; % see SetupVcycleT.m
+    params{alg}.setup_method = 'SA'; %'SpSA'; % see SetupVcycleT.m
     params{alg}.relax_method = 'GS'; % see GetSmootherInfo.m
     params{alg}.P_smoothing = 'SPAI'; % see smoothProlongationInfo.m
     params{alg}.P_smoothing_omega_type = 'fixed'; % see smoothProlongationInfo.m
     params{alg}.P_epsilonFilter = 0.02; % see Filter.m
-    params{alg}.nu1 = 2; % pre relaxations
-    params{alg}.nu2 = 2; % post relaxations
+    params{alg}.nu1 = 1; % pre relaxations
+    params{alg}.nu2 = 1; % post relaxations
     params{alg}.RelParamType = 'fixed'; % see GetSmootherInfo.m
     params{alg}.RelParam = 1;% see GetSmootherInfo.m
     params{alg}.OC = 1.0; % overcorrection parameter
@@ -64,10 +66,10 @@ if nargin < 8
     params{alg}.oneRelaxOnFineGrid = 1; % do only 1 (pre and post) relaxation on finest grid.
 end
 if nargin < 7
-    TOL = 1e-10;
+    TOL = 1e-6;
 end
 if nargin < 6
-    maxit = 200;
+    maxit = 1000;
 end
 if nargin < 5
     setup_info = [];
@@ -130,6 +132,7 @@ for alg = 1:length(params)
         DispToFile(tracefile,['Setup took: ',num2str(trace_info.setup_time),' seconds, and ',num2str(round(trace_info.setup_time / Tref)),' MAT-VEC work-units']);
     end
     if collecting_results
+        total_nnz = 0;
         max_nnz = 0;
         mean_nnz = 0;
         Cop_w = 0;
@@ -150,6 +153,7 @@ for alg = 1:length(params)
             end
             DispToFile(tracefile,['Level: ',num2str(k),', n = ',num2str(n),', NNZ: ',num2str(nzmax(AT_t)),' Max NNZ per row: ',num2str(max_nnz_t),' Mean: ',num2str(mean_nnz_t)]);
             Cop_w = Cop_w + nzmax(AT_t)*(2^(k-1));
+            total_nnz = total_nnz + nzmax(AT_t);
         end
         Cop_w = Cop_w / nzmax(AT);
         mean_nnz = mean_nnz/(num_levels-1);
@@ -183,7 +187,7 @@ for alg = 1:length(params)
         end
     end
     if collecting_results
-        gamma = prod(results{alg}.rnorms(end-8:end)./results{alg}.rnorms(end-9:end-1))^(1/length(results{alg}.rnorms(end-8:end)));
+        gamma = prod(results{alg}.rnorms(max(2,end-8):end)./results{alg}.rnorms(max(1,end-9):end-1))^(1/length(results{alg}.rnorms(max(2,end-8):end)));
         DispToFile(tracefile,' ');
         DispToFile(tracefile,[params{alg}.setup_method,': Summary for ',getAlgParamsTitle(params{alg})]);
         DispToFile(tracefile,' ');
@@ -200,6 +204,7 @@ for alg = 1:length(params)
 %         Whole_latex_line = [Whole_latex_line,' & ',latex_line];
 %         DispToFile(tracefile,[latex_line,' \\']);
 %         DispToFile(tracefile,' ');
+        results{alg}.niter = iter;
     end
 end
 % if collecting_results
