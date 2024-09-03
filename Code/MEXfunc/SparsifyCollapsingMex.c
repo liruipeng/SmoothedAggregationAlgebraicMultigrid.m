@@ -24,8 +24,10 @@ void SparsifyAki(mwIndex k, mwIndex i, double Aki,
 
 int intersect(mwIndex* A, mwIndex* B, mwIndex startA, mwIndex endA, 
         mwIndex startB, mwIndex endB, mwIndex* ans, mwIndex* iA, mwIndex* iB);
+/*
 // mwIndex setDiff(mwIndex* A, mwIndex* B, mwIndex startA, mwIndex endA, 
 //         mwIndex startB, mwIndex endB, mwIndex* ans, mwIndex* i);
+*/
 mwIndex findBinarySearch(mwIndex* A, mwIndex startA, mwIndex endA, mwIndex toFind);
 void GenerateDiagonalGlobalIndices(mwIndex startRow, mwIndex endRow, 
         mwIndex* R_A0, mwIndex* starts_A0, mwIndex* globalDiagonal);
@@ -33,14 +35,13 @@ void GenerateDiagonalGlobalIndices(mwIndex startRow, mwIndex endRow,
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims SparsifyCollapsingMex.c COMPFLAGS="$COMPFLAGS -openmp" LINKFALGS="$LINKFALGS -openmp"
+    /*mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims SparsifyCollapsingMex.c COMPFLAGS="$COMPFLAGS -openmp" LINKFALGS="$LINKFALGS -openmp"*/
     mwIndex id, Nthrds, istart, iend;
     mwIndex naux = 0;
-// // 
     mwIndex *R_A0 = mxGetIr(prhs[0]);
     mwIndex *starts_A0 = mxGetJc(prhs[0]);
     double  *V_A0 = mxGetPr(prhs[0]);
-    //mwIndex nzmax_A0 = mxGetNzmax(prhs[0]);
+    /*mwIndex nzmax_A0 = mxGetNzmax(prhs[0]); */
     mwIndex n = mxGetN(prhs[0]);
     
     mwIndex *R_Aomega = mxGetIr(prhs[1]);
@@ -67,7 +68,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     #pragma omp parallel private(id, Nthrds, istart, iend) num_threads(omp_get_num_procs())
     {
-        //printf("%d",);
+        /*printf("%d",);*/
         id = omp_get_thread_num();
         Nthrds = omp_get_num_threads();
         istart = id * n / Nthrds;
@@ -122,7 +123,7 @@ void Sparsify(mwIndex startRow, mwIndex endRow, mwIndex naux,
             Aki = V_Aomega[global_idx];
             i = R_Aomega[global_idx];
             if (Aki!=0){
-                //printf("Sparsifing (%d,%d,%lf)\n",k,i,Aki);
+                /*printf("Sparsifing (%d,%d,%lf)\n",k,i,Aki);*/
                 SparsifyAki(k,i,Aki,R_A0 , starts_A0, V_A0,
                         R_RP0, starts_RP0, V_RP0, C_R0P, starts_R0P, V_R0P,
                         C_A0_cols, starts_A0_cols, V_A0_cols,
@@ -152,17 +153,19 @@ void SparsifyAki(mwIndex k, mwIndex i, double Aki,
 	mwIndex *tmp_ind=0;
 	double *tmp_double=0;
     double delta,R0Pm1i;
+    /*
     // printf("k:%ld, i:%ld, Aki: %lf\n",k,i,Aki);
     
     // Now we check distance 2 paths between i and k
+    */
     n_intersect = intersect(C_R0P , R_RP0, starts_R0P[i] , starts_R0P[i+1],
             starts_RP0[k], starts_RP0[k+1],intI1I2, auxI1, auxI2);
-    //printf("n_intersect: %d\n",n_intersect);
+    /*printf("n_intersect: %d\n",n_intersect);*/
     if (n_intersect > 0){
         delta = 0;
         for (it = 0 ; it < n_intersect ; it++){
             thetta[it] = fabs(V_R0P[auxI1[it]]*V_RP0[auxI2[it]]);
-            //printf("mex: V_R0P:%lf; V_RP0: %lf\n",V_R0P[auxI1[it]],V_RP0[auxI2[it]]);
+            /*printf("mex: V_R0P:%lf; V_RP0: %lf\n",V_R0P[auxI1[it]],V_RP0[auxI2[it]]);*/
             delta += thetta[it];
         }
         delta = Aki/delta;
@@ -172,13 +175,15 @@ void SparsifyAki(mwIndex k, mwIndex i, double Aki,
         for (it = 0 ; it < n_intersect ; it++){
             m1 = intI1I2[it];
             delta = thetta[it];
+            /*
 //             printf("mex: %ld->%ld->%ld:%lf\n",i,m1,k,delta);
             // Here: m1==m2
             // here we assume that A0 contains R0P and P0R
+            */
             global_km2 = findBinarySearch(R_A0, starts_A0[k], starts_A0[k+1], m1);
             global_m1i = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], i);
             global_m1m1 = globalDiagonal[m1];
-//             global_m1m1 = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], m1);
+/*             global_m1m1 = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], m1);*/
             #pragma omp atomic
             V_A0[global_km2] += delta;
             #pragma omp atomic
@@ -187,7 +192,7 @@ void SparsifyAki(mwIndex k, mwIndex i, double Aki,
             V_A0[global_m1m1] -= delta;
         }
     }else{
-        // Now there is no distance 2 path. We seek distance 3 paths.
+        /* Now there is no distance 2 path. We seek distance 3 paths.*/
         list_it = 0;
         delta = 0;
         for (m1it = starts_R0P[i] ; m1it < starts_R0P[i+1] ; m1it++){
@@ -233,11 +238,13 @@ void SparsifyAki(mwIndex k, mwIndex i, double Aki,
             m1 = auxm1[it];
             m2 = auxm2[it];
             delta = thetta[it];
-//             printf("mex: %ld->%ld->%ld->%ld:%lf\n",i,m1,m2,k,delta);
+/*             printf("mex: %ld->%ld->%ld->%ld:%lf\n",i,m1,m2,k,delta);*/
             global_km2 = findBinarySearch(R_A0, starts_A0[k], starts_A0[k+1], m2);
             global_m1i = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], i);
+            /*
 //             global_m1m1 = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], m1);
 //             global_m2m2 = findBinarySearch(R_A0, starts_A0[m2], starts_A0[m2+1], m2);
+//             */
             global_m2m2 = globalDiagonal[m2];
             global_m1m1 = globalDiagonal[m1];
             global_m2m1 = findBinarySearch(R_A0, starts_A0[m2], starts_A0[m2+1], m1);
@@ -267,7 +274,7 @@ void splitMatrices(mwIndex startRow, mwIndex endRow,
         mwIndex* R_A0 , mwIndex *starts_A0, double  *V_A0 ,  
         mwIndex *R_Aomega , mwIndex *starts_Aomega, double  *V_Aomega){
     mwIndex k,global_idx0, global_idx,tmp0, tmpOmega;
-    // SPLITTING
+    /* SPLITTING */
     for (k = startRow ; k < endRow ;++k){
         for (global_idx0 = starts_A0[k] ; global_idx0 < starts_A0[k+1] ; ++global_idx0){
            V_A0[global_idx0] = 0; 
@@ -323,6 +330,7 @@ mwIndex findBinarySearch(mwIndex* A, mwIndex startA, mwIndex endA, mwIndex toFin
     }
     printf("INDEX NOT FOUND!!! IMPOSSIBLE - THERE'S A BUG");
     return 0;
+    /*
 //     mwIndex mid;
 //     endA = endA-1;
 //     // continually narrow search until just one element remains
@@ -345,9 +353,10 @@ mwIndex findBinarySearch(mwIndex* A, mwIndex startA, mwIndex endA, mwIndex toFin
 //         printf("INDEX NOT FOUND!!! IMPOSSIBLE - THERE'S A BUG");
 //         return 0;
 //     }
+*/
 }
   
-
+/*
 // mwIndex setDiff(mwIndex* A, mwIndex* B, mwIndex startA, mwIndex endA, 
 //         mwIndex startB, mwIndex endB, mwIndex* AB, mwIndex* IA){
 //     mwIndex ia = startA, ib = startB;
@@ -372,3 +381,4 @@ mwIndex findBinarySearch(mwIndex* A, mwIndex startA, mwIndex endA, mwIndex toFin
 //     }
 // }
 // 
+*/

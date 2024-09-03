@@ -61,7 +61,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         aux_colors[i] = 0;
     }
     for ( i = 0 ; i < n ; i++){
-        // here aux_colors is a temporary array that marks the colors of i's neighbors
+        /* here aux_colors is a temporary array that marks the colors of i's neighbors */
         j=starts_t[i];
         while (C_t[j]<i){
             aux_colors[aux_color_elems[C_t[j]]] = 1;
@@ -74,7 +74,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 ++j;
             }
         }
-        // At this point we know that aux_colors marks all the colors found in i's neighborhood.
+        /* At this point we know that aux_colors marks all the colors found in i's neighborhood. */
         j = 0;
         while (aux_colors[j]!=0){
             aux_colors[j] = 0; 
@@ -87,18 +87,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
             ++j;
         }
 	} 
-    for (i = 0 ; i < n ; i++){ // count colors:
+    for (i = 0 ; i < n ; i++){ /* count colors: */
         aux_colors[aux_color_elems[i]]++;
     }
     if (n_colors > 2){
-        // find two maximal && replace largest and second largest to be first (0) and last (n_colors-1)
+        /* find two maximal && replace largest and second largest to be first (0) and last (n_colors-1) */
         makeLargestTwoColorsFirstAndLast(aux_colors, aux_color_elems, n_colors, n );
     }
     plhs[1] = mxCreateDoubleMatrix(1, n_colors+1, mxREAL);
     out_color_starts = mxGetPr(plhs[1]);
     out_color_starts[0] = 0;
-    // Preparing output 
-    // Essentially BucketSort without the initialization:
+    /* Preparing output 
+       Essentially BucketSort without the initialization: */
     for (j=0; j < n_colors; ++j){
         out_color_starts[j+1] = out_color_starts[j] + aux_colors[j];
     }
@@ -107,12 +107,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         out_color_elems[(mwIndex)out_color_starts[k+1] - aux_colors[k]] = i;
         aux_colors[k]--;
     }
+/*
 //     for (i=0, j=0; j < n_colors; ++j){
 //         out_color_starts[j+1] = out_color_starts[j] + aux_colors[j];
 //         for (k = aux_colors[j]; k > 0; --k){
 //             out_color_elems[i++] = j;
 //         }
 //     }
+*/
     free(aux_colors);
     free(aux_color_elems);
 }
@@ -157,8 +159,10 @@ void makeLargestTwoColorsFirstAndLast(mwIndex* aux_colors, mwIndex* aux_color_el
         }
         swap(&aux_colors[n_colors-1], &aux_colors[secondLargest]);
     }
+/*
 //     printf("After swapping first and last:\n");
 //     for (i = 0 ; i < n_colors ; i++){
 //         printf("aux_colors[i] is %d\n",aux_colors[i] );
 //     }
+*/
 }

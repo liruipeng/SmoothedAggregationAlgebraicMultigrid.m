@@ -1,14 +1,12 @@
 #include "mex.h"
-#include <omp.h>
 #include <math.h>
 
 
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims NeighborhoodAggNew.c
+    /*mex  -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims NeighborhoodAggNew.c*/
     mwIndex k,global_idx;
-// // 
     mwIndex *C_S = mxGetIr(prhs[0]);
     mwIndex *starts_S = mxGetJc(prhs[0]);
     double  *V_S = mxGetPr(prhs[0]);
@@ -22,7 +20,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[0] = mxCreateDoubleMatrix(1, n, mxREAL);
 	aggr = mxGetPr(plhs[0]);
 	
-    // initialization: aggr will hold the answer of the aggregation.
+    /* initialization: aggr will hold the answer of the aggregation.*/
 		
     for (k = 0 ; k < n ; k++){
         aggr[k] = 0;
@@ -31,7 +29,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 		avg_sparsity += starts_S[k+1] - starts_S[k];
     }
 	avg_sparsity /= n;
-	// Here we set "too popular" variables to be ignored in the aggregation - so they won't be a seed.
+	/* Here we set "too popular" variables to be ignored in the aggregation - so they won't be a seed.*/
 	for (k = 0 ; k < n ; k++){
         if (starts_S[k+1] - starts_S[k] > 3*avg_sparsity){
 			aux_count[k] = -1; 
@@ -40,7 +38,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     for (k = 0 ; k < n ; k++){
         Neighbors_Aggregated_flag = 0;
 		if (aux_count[k] == -1){
-			continue; // ignore...
+			continue; /* ignore...*/
 		}
         for (global_idx = starts_S[k] ; global_idx<starts_S[k+1] ; global_idx++ ){
             if (aggr[C_S[global_idx]] != 0){
@@ -51,13 +49,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
         if (Neighbors_Aggregated_flag==0){
             for (global_idx = starts_S[k] ; global_idx<starts_S[k+1] ; global_idx++ ){
 				if (aux_count[C_S[global_idx]]!=-1){
-					aggr[C_S[global_idx]] = k+1; //conversion to Matlab's indices;
+					aggr[C_S[global_idx]] = k+1; /*conversion to Matlab's indices;*/
 					aux_count[k]++;
 				}
             }
         }
     }
-	// here we repeat the process except ignored variables...
+	/* here we repeat the process except ignored variables...*/
 	for (k = 0 ; k < n ; k++){
         Neighbors_Aggregated_flag = 0;
 		if (aux_count[k]!=-1){
@@ -72,7 +70,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
         if (Neighbors_Aggregated_flag==0){
             for (global_idx = starts_S[k] ; global_idx<starts_S[k+1] ; global_idx++ ){
-				aggr[C_S[global_idx]] = k+1; //conversion to Matlab's indices;
+				aggr[C_S[global_idx]] = k+1; /*conversion to Matlab's indices;*/
 				aux_count[k]++;
             }
         }
@@ -82,13 +80,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
 		chosen_score = 0;
 		if (aggr[k] == 0){
 			for (global_idx = starts_S[k] ; global_idx < starts_S[k+1] ; global_idx++ ){
-				if (aggr[C_S[global_idx]] > 0){ // aggr can be negative here....					
+				if (aggr[C_S[global_idx]] > 0){ /* aggr can be negative here....					*/
                     agg_of_neighbor = aggr[C_S[global_idx]]-1;
 					aux[agg_of_neighbor] += V_S[global_idx];
                 }
 			}
 			for (global_idx = starts_S[k] ; global_idx<starts_S[k+1] ; global_idx++ ){
-				if (aggr[C_S[global_idx]]>0){ // aggr can be negative here....
+				if (aggr[C_S[global_idx]]>0){ /* aggr can be negative here....*/
                     agg_of_neighbor = aggr[C_S[global_idx]]-1;
                     if (chosen_score < aux[agg_of_neighbor]/aux_count[agg_of_neighbor]) {
 						chosen_score = aux[agg_of_neighbor]/aux_count[agg_of_neighbor];
@@ -97,7 +95,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 					}
                 }
 			}
-            aggr[k] = -((double)(chosen+1)); // we don't want the new aggregate to spread - use only original aggregate
+            aggr[k] = -((double)(chosen+1)); /* we don't want the new aggregate to spread - use only original aggregate*/
 		}
 	}
 	for (k = 0 ; k < n ; k++){

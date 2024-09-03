@@ -1,9 +1,12 @@
 #include "mex.h"
 #include <omp.h>
+
+#define max(a,b) (((a)<(b)) ? (b) : (a))
+
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //mex -largeArrayDims MulticolorGaussSeidelSMatTranspose.c COMPFLAGS="$COMPFLAGS -openmp" LINKFALGS="$LINKFALGS -openmp"
+    /* mex -largeArrayDims MulticolorGaussSeidelSMatTranspose.c COMPFLAGS="$COMPFLAGS -openmp" LINKFALGS="$LINKFALGS -openmp" */
     mwIndex i,j,i_color;
     int id, Nthrds, istart, iend,k;
     long idx_in_color;
@@ -29,7 +32,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     #pragma omp parallel shared(colorStarts, indicesOrder,vals_t,C_t,starts_t,invDiag,x_in,b,aux) private(i_color,idx_in_color,k,i,j,temp,id, Nthrds, istart, iend) num_threads(omp_get_num_procs()/2)
     {
-        //printf("%d",);
+        /* printf("%d",); */
         id = omp_get_thread_num();
         Nthrds = omp_get_num_threads();
         istart = id * n / Nthrds;

@@ -1,11 +1,14 @@
 #include "mex.h"
 #include <omp.h>
 #include <math.h>
+#define max(a,b) (((a)<(b)) ? (b) : (a))
 
+/*
 //cd .\MEXfunc ; mex -O 'CXXOPTIMFLAGS=-DNDEBUG -O3' -largeArrayDims SparsifyCollapsedGalerkinMex_new.c COMPFLAGS="$COMPFLAGS -openmp" LINKFALGS="$LINKFALGS -openmp"; cd .\..
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
+*/
 typedef struct member_t{
     double v_vec;
     mwIndex i_vec;
@@ -16,9 +19,11 @@ typedef struct member_t{
 int FirstSmaller(member* A, member* B){
     return (A->j_mat < B->j_mat);
 }
+/*
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
+*/
 typedef struct Heap_t{
     int heapSize;
     int maxSize;
@@ -75,14 +80,14 @@ member* DeleteMin(Heap* heap)
         }
     }
     heap->arr[k] = x;
-    //  Prevent leakage...?
+    /*  Prevent leakage...?*/
     return least;
 }
-
+/*
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-
+*/
 int intersect(mwIndex* A, mwIndex* B, mwIndex startA, mwIndex endA,
         mwIndex startB, mwIndex endB, mwIndex* AB, mwIndex* iA, mwIndex* iB);
 mwIndex findLinearSearch(mwIndex* A, mwIndex startA, mwIndex endA, mwIndex toFind);
@@ -93,13 +98,13 @@ mwIndex MultyplyRowTimesMat(mwIndex *vec_ind , double *vec_vals, mwIndex nnz_vec
         mwIndex *C_mat  , mwIndex *starts_mat , double *V_mat,
         mwIndex *ans_ind , double *ans_vals, Heap* heap, member* members);
 
-int SparsifyAki(mwIndex k, mwIndex i, double Aki, 
+void SparsifyAki(mwIndex k, mwIndex i, double Aki, 
         mwIndex* R_A0     , mwIndex *starts_A0     , double  *V_A0,
         mwIndex *R_RP0    , mwIndex *starts_RP0    , double *V_RP0,
         mwIndex *C_R0P    , mwIndex *starts_R0P    , double *V_R0P,
         mwIndex *C_A0_cols, mwIndex *starts_A0_cols, double *V_A0_cols,
         mwIndex *intI1I2  , mwIndex *auxI1         , mwIndex *auxI2,
-        mwIndex *auxm1    , mwIndex *auxm2         , double* thetta,  mwIndex* globalDiagonal , int MAX_HEAP_SIZE_nc);
+        mwIndex *auxm1    , mwIndex *auxm2         , double* thetta,  mwIndex* globalDiagonal , mwIndex MAX_HEAP_SIZE_nc);
 
 
 void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
@@ -112,7 +117,7 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
         mwIndex *C_A0_cols, mwIndex *starts_A0_cols,double *V_A0_cols,
         mwIndex* globalDiagonal, int MAX_HEAP_SIZE_nc,int MAX_HEAP_SIZE_n){
     
-    mwIndex k,global_idx,nnz_in_row,i, *aux_ind , global_idx0,tmp0, tmpOmega , sparsify_indcator,ans;
+    mwIndex k,global_idx,nnz_in_row,i, *aux_ind , global_idx0,tmp0, tmpOmega , sparsify_indcator;
     mwIndex *intI1I2, *auxI1, *auxI2, *auxm1, *auxm2;
     double *thetta;
     double Aki;
@@ -152,12 +157,13 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
 		}
         nnz_in_row = MultyplyRowTimesMat(aux_ind, aux_vals, nnz_in_row,
         C_P, starts_P, V_P, aux_ind , aux_vals, &heap, members);
-           
+/*
 //         for (i = 0 ; i < nnz_in_row ;++i){
 //             V_A0[starts_A0[k] + i] = aux_vals[i];
 //             C_A0[starts_A0[k] + i] = aux_ind[i];
 //         }
         // SPLITTING
+*/
         
         global_idx0 = starts_A0[k];
         i = 0;
@@ -169,27 +175,27 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
                 V_A0[global_idx0] += aux_vals[i];
                 global_idx0++;
                 i++;
-//                 printf("exit 1\n");
+/*                 printf("exit 1\n");*/
             }else{
                 if (tmp0 < tmpOmega){
                     global_idx0++;
-//                     printf("exit 2\n");
+/*                     printf("exit 2\n");*/
                 }else{
-					ans = SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
+					SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
                         R_RP0, starts_RP0, V_RP0, C_R0P, starts_R0P, V_R0P,
                         C_A0_cols, starts_A0_cols, V_A0_cols,
                         intI1I2, auxI1, auxI2, auxm1, auxm2, thetta, globalDiagonal,MAX_HEAP_SIZE_nc);
-//                     printf("Sparsifing (%d,%d,%lf)\n",k,aux_ind[i],aux_vals[i]);
+/*                     printf("Sparsifing (%d,%d,%lf)\n",k,aux_ind[i],aux_vals[i]);*/
                     i++;
                 }
             }
         }
         while (i<nnz_in_row){
-			ans = SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
+			SparsifyAki(k,aux_ind[i],aux_vals[i],C_A0 , starts_A0, V_A0,
                     R_RP0, starts_RP0, V_RP0, C_R0P, starts_R0P, V_R0P,
                     C_A0_cols, starts_A0_cols, V_A0_cols,
                     intI1I2, auxI1, auxI2, auxm1, auxm2, thetta, globalDiagonal,MAX_HEAP_SIZE_nc); 
-//             printf("Sparsifing (%d,%d,%lf)\n",k,aux_ind[i],aux_vals[i]);
+/*             printf("Sparsifing (%d,%d,%lf)\n",k,aux_ind[i],aux_vals[i]);*/
             i++;
         }
         
@@ -208,7 +214,7 @@ void MultyplyAndSparsify(mwIndex startRow, mwIndex endRow, mwIndex n,
     free(thetta);  
 }
 
-int SparsifyAki(mwIndex k, mwIndex i, double Aki, 
+void SparsifyAki(mwIndex k, mwIndex i, double Aki, 
         mwIndex* R_A0     , mwIndex *starts_A0     , double  *V_A0,
         mwIndex *R_RP0    , mwIndex *starts_RP0    , double *V_RP0,
         mwIndex *C_R0P    , mwIndex *starts_R0P    , double *V_R0P,
@@ -220,20 +226,20 @@ int SparsifyAki(mwIndex k, mwIndex i, double Aki,
             global_km2,global_m1i,global_m1m1,global_m2m2,global_m2m1;
     double delta,R0Pm1i;
     int ans = 0;
-    // printf("k:%ld, i:%ld, Aki: %lf\n",k,i,Aki);
+    /* printf("k:%ld, i:%ld, Aki: %lf\n",k,i,Aki);*/
     if (fabs(Aki)<1e-14){
 		ans = 1;
 		return;
 	}
-    // Now we check distance 2 paths between i and k
+    /* Now we check distance 2 paths between i and k*/
     n_intersect = intersect(C_R0P , R_RP0, starts_R0P[i] , starts_R0P[i+1],
             starts_RP0[k], starts_RP0[k+1],intI1I2, auxI1, auxI2);
-    //printf("n_intersect: %d\n",n_intersect);
+    /*printf("n_intersect: %d\n",n_intersect);*/
     if (n_intersect > 0){
         delta = 0;
         for (it = 0 ; it < n_intersect ; it++){
             thetta[it] = fabs(V_R0P[auxI1[it]]*V_RP0[auxI2[it]]);
-            //printf("mex: V_R0P:%lf; V_RP0: %lf\n",V_R0P[auxI1[it]],V_RP0[auxI2[it]]);
+            /* printf("mex: V_R0P:%lf; V_RP0: %lf\n",V_R0P[auxI1[it]],V_RP0[auxI2[it]]);*/
             delta += thetta[it];
         }
         delta = Aki/delta;
@@ -243,13 +249,13 @@ int SparsifyAki(mwIndex k, mwIndex i, double Aki,
         for (it = 0 ; it < n_intersect ; it++){
             m1 = intI1I2[it];
             delta = thetta[it];
-//             printf("mex: %ld->%ld->%ld:%lf\n",i,m1,k,delta);
+/*             printf("mex: %ld->%ld->%ld:%lf\n",i,m1,k,delta);
             // Here: m1==m2
-            // here we assume that A0 contains R0P and P0R
+            // here we assume that A0 contains R0P and P0R*/
             global_km2 = findBinarySearch(R_A0, starts_A0[k], starts_A0[k+1], m1);
             global_m1i = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], i);
             global_m1m1 = globalDiagonal[m1];
-//             global_m1m1 = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], m1);
+/*             global_m1m1 = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], m1);*/
              #pragma omp atomic
             V_A0[global_km2] += delta;
              #pragma omp atomic
@@ -259,7 +265,7 @@ int SparsifyAki(mwIndex k, mwIndex i, double Aki,
             ans = 1;
         }
     }else{
-        // Now there is no distance 2 path. We seek distance 3 paths.
+        /* Now there is no distance 2 path. We seek distance 3 paths.*/
         list_it = 0;
         delta = 0;
         for (m1it = starts_R0P[i] ; m1it < starts_R0P[i+1] ; m1it++){
@@ -287,11 +293,13 @@ int SparsifyAki(mwIndex k, mwIndex i, double Aki,
             m1 = auxm1[it];
             m2 = auxm2[it];
             delta = thetta[it];
-            //printf("mex: %ld->%ld->%ld->%ld:%lf\n",i,m1,m2,k,delta);
+            /*printf("mex: %ld->%ld->%ld->%ld:%lf\n",i,m1,m2,k,delta);*/
             global_km2 = findBinarySearch(R_A0, starts_A0[k], starts_A0[k+1], m2);
             global_m1i = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], i);
+/*
 //             global_m1m1 = findBinarySearch(R_A0, starts_A0[m1], starts_A0[m1+1], m1);
 //             global_m2m2 = findBinarySearch(R_A0, starts_A0[m2], starts_A0[m2+1], m2);
+*/
             global_m2m2 = globalDiagonal[m2];
             global_m1m1 = globalDiagonal[m1];
             global_m2m1 = findBinarySearch(R_A0, starts_A0[m2], starts_A0[m2+1], m1);
@@ -333,12 +341,12 @@ mwIndex MultyplyRowTimesMat(mwIndex *vec_ind , double *vec_vals, mwIndex nnz_vec
         curr_min->j_mat = C_mat[curr_min->global_mat];
         Insert(heap,curr_min);
     }
-    // here we're done reading from vec_ind. It will be run over if vec_ind==ans_ind
+    /* here we're done reading from vec_ind. It will be run over if vec_ind==ans_ind */
     curr_min = DeleteMin(heap);
     ans_ind[0] = curr_min->j_mat;
     while (curr_min!=NULL){
         if (curr_min->j_mat == ans_ind[ans_tmp_global]){
-//             // here we add to the answer
+/* //             // here we add to the answer */
             ans_tmp_v += curr_min->v_vec*V_mat[curr_min->global_mat];
         }else{
             ans_vals[ans_tmp_global] = ans_tmp_v;
@@ -425,7 +433,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     #pragma omp parallel private(id, Nthrds, istart, iend, k) num_threads(omp_get_num_procs()/2)
     {
         id = omp_get_thread_num();
-        //printf("num threads: %u, ",omp_get_num_threads());
+        /*printf("num threads: %u, ",omp_get_num_threads());*/
         Nthrds = omp_get_num_threads();
         istart = id * nzmax_A0 / Nthrds;
         iend = (id+1) * nzmax_A0 / Nthrds;
@@ -469,11 +477,11 @@ mwIndex findBinarySearch(mwIndex* A, mwIndex startA, mwIndex endA, mwIndex toFin
 		return mid;
     }else{
         endA--;
-        // continually narrow search until just one element remains
+        /* continually narrow search until just one element remains*/
         while (startA < endA)
         {
             mid = (startA+endA)>>1;
-            // reduce the search
+            /* reduce the search */
             if (A[mid] < toFind){
                 startA = mid+1;
             }else{

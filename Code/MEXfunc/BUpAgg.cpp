@@ -221,7 +221,7 @@ ArrayQueue** initializeQueues(int size, int n, SquareMatrix* S, int* numberOfNei
 	for (int i = 0; i < size+1 ; i++){
 		queues[i] = new ArrayQueue(bucketSizes[i]+((i+1)*n)/size);
 	}
-	delete bucketSizes;
+	delete[] bucketSizes;
 	for (int i = 0; i < n ; i++){
 		if ( numberOfNeighbors[i] > size ){
 			queues[size]->insert(i+1);
@@ -341,7 +341,7 @@ double sumOverPath(Aggregate *path, SquareMatrix *S, int *aggregates){
     for(int i = 0 ; i < path->len; ++i){
        aggregates[path->members[i]-1] = temp[i];
     }
-    delete temp;
+    delete[] temp;
     return ans;
 }
 //******************************************************************************
